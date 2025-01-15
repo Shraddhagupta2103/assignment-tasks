@@ -1,0 +1,53 @@
+import base64
+import boto3
+import os
+
+# Initialize the S3 client
+s3_client = boto3.client('s3')
+
+def lambda_handler(event, context):
+    """
+    Lambda function to store a document or PDF file in an S3 bucket.
+    
+    Parameters:
+        event (dict): Input event containing:
+            - bucket_name: Name of the target S3 bucket.
+            - file_name: Name of the file to store in S3.
+            - file_content: Base64-encoded content of the file.
+
+        context: Lambda execution context (not used in this function).
+    
+    Returns:
+        dict: Response indicating success or failure.
+    """
+    try:
+        # Extract parameters from the event
+        bucket_name = event.get('bucket_name')
+        file_name = event.get('file_name')
+        file_content_base64 = event.get('file_content')
+
+        if not bucket_name or not file_name or not file_content_base64:
+            raise ValueError("Missing required parameters: 'bucket_name', 'file_name', or 'file_content'.")
+
+        # Decode the base64-encoded file content
+        file_content = base64.b64decode(file_content_base64)
+
+        # Upload the file to the specified S3 bucket
+        s3_client.put_object(
+            Bucket=bucket_name,
+            Key=file_name,
+            Body=file_content
+        )
+
+        # Return a success response
+        return {
+            'statusCode': 200,
+            'body': f"File '{file_name}' successfully uploaded to bucket '{bucket_name}'."
+        }
+
+    except Exception as e:
+        # Handle errors
+        return {
+            'statusCode': 500,
+            'body': f"Failed to upload file: {str(e)}"
+        }
