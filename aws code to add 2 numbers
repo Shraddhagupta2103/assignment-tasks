@@ -1,0 +1,41 @@
+# assignment-tasks
+def lambda_handler(event, context):
+    """
+    Lambda function to add two numbers.
+
+    Parameters:
+        event (dict): Input event containing the two numbers as 'num1' and 'num2'.
+        context: Lambda execution context (not used in this function).
+
+    Returns:
+        dict: A dictionary containing the result of the addition.
+    """
+    # Extract numbers from the event
+    try:
+        num1 = event.get('num1', 0)
+        num2 = event.get('num2', 0)
+        
+        # Ensure the inputs are numbers
+        if not isinstance(num1, (int, float)) or not isinstance(num2, (int, float)):
+            raise ValueError("Inputs must be numbers.")
+        
+        # Perform addition
+        result = num1 + num2
+        
+        # Return the result
+        return {
+            'statusCode': 200,
+            'body': {
+                'num1': num1,
+                'num2': num2,
+                'result': result
+            }
+        }
+    except Exception as e:
+        # Handle errors
+        return {
+            'statusCode': 400,
+            'body': {
+                'error': str(e)
+            }
+        }
